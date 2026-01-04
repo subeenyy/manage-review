@@ -49,6 +49,7 @@ public class SponsorshipService {
             case CANCEL -> s.cancel();
             default -> throw new IllegalArgumentException("지원 상태로 되돌릴 수 없음");
         }
+
     }
 
     @Transactional(readOnly = true)

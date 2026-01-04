@@ -9,7 +9,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface SponsorshipMapper {
-    @Mapping(target = "id", ignore = true)  // id는 업데이트 안함
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "status", ignore = true)
     void updateFromDto(SponsorshipResponseDto dto, @MappingTarget Sponsorship entity);
 
     default String map(List<String> value) {

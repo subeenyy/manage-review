@@ -3,6 +3,8 @@ package org.example.sponsorship;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.user.User;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "sponsorship")
+@DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
