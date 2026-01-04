@@ -2,6 +2,8 @@ package org.example.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -9,8 +11,12 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String secretKey = "very-secret-key";
-    private final long validity = 1000 * 60 * 60; // 1시간
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Value("${jwt.validity}")
+    private long validity;
+
 
     public String createToken(Long userId) {
         Date now = new Date();

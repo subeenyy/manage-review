@@ -1,11 +1,9 @@
 spring:
   kafka:
     bootstrap-servers: localhost:9092
-
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
     consumer:
       group-id: user-event-group
       auto-offset-reset: earliest
@@ -14,35 +12,39 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
-
   datasource:
-    url: jdbc:mysql://localhost:3306/review?serverTimezone=Asia/Seoul
-    username: app
-    password: app1234
+    url: jdbc:mysql://localhost:3306/review
+    username: root
+    password: rootpassword
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
       hibernate:
-        ddl-auto: update
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
+        format_sql: true
 
-    jackson:
-      time-zone: Asia/Seoul
+  jackson:
+    time-zone: Asia/Seoul
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
+  redis:
+    host: localhost
+    port: 6379
 
 logging:
   level:
     org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: ERROR
 
 management:
   endpoints:
     web:
       exposure:
         include: health, metrics, prometheus
+
+jwt:
+  secret: "very-very-secret-key-that-is-at-least-32-bytes"
+  validity: 3600000 # 1시간 (밀리초)
