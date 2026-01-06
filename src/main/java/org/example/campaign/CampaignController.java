@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.auth.JwtTokenProvider;
-import org.example.review.ReviewSubmittedEvent;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,6 @@ public class CampaignController {
 
     private final CampaignService campaignService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CampaignRepository campaignRepository;
 
     @GetMapping("/{campaignId}")
     public CampaignResponseDto getCampaignById(
@@ -30,23 +28,24 @@ public class CampaignController {
         Long userId = extractUserId(token);
 
         Campaign s = campaignService.findByCampaignIdAndUser(campaignId, userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 건을 찾을 수 없습니다"));;
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 건을 찾을 수 없습니다"));
 
         return CampaignResponseDto.fromEntity(s);
     }
 
 
     @PostMapping
-    public Campaign createCampaign(
+    public CampaignResponseDto createCampaign(
             @RequestHeader("Authorization") String token,
             @RequestBody @Valid CampaignCreateRequestDto sponsorship
     ) {
         Long userId = extractUserId(token);
-        return campaignService.createCampaign(userId, sponsorship);
+        Campaign campaign = campaignService.createCampaign(userId, sponsorship);
+        return CampaignResponseDto.fromEntity(campaign);
     }
 
     @GetMapping
-    public List<CampaignResponseDto> getSponsorships(
+    public List<CampaignResponseDto> getCampaigns(
             @RequestHeader("Authorization") String token
     ) {
         Long userId = extractUserId(token);
@@ -56,19 +55,15 @@ public class CampaignController {
                 .toList();
     }
 
-    @PatchMapping("/{campaignId}/{userId}")
-    public CampaignResponseDto updateSponsorship(
-            @PathVariable Long userId,
+    @PatchMapping("/{campaignId}")
+    public CampaignResponseDto updateCampaign(
             @PathVariable Long campaignId,
             @RequestHeader("Authorization") String token,
             @RequestBody CampaignResponseDto dto
     ) {
-        Long tokenUserId = extractUserId(token);
-        if (!tokenUserId.equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다");
-        }
+        Long userId = extractUserId(token);
 
-        Campaign updated = campaignService.updateCampaign(campaignId,dto);
+        Campaign updated = campaignService.updateCampaign(campaignId, userId, dto);
         return CampaignResponseDto.fromEntity(updated);
     }
 

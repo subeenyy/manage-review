@@ -1,6 +1,7 @@
 package org.example.campaign;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.review.ReviewSubmittedEvent;
 import org.example.user.User;
 import org.example.user.UserRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -65,9 +67,12 @@ public class CampaignService {
     }
 
 
-    public Campaign updateCampaign(Long campaignId, CampaignResponseDto dto) {
+    public Campaign updateCampaign(Long campaignId, Long userId, CampaignResponseDto dto) {
         Campaign existing = campaignRepository.findById(campaignId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if(!existing.getUser().getId().equals(userId)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 캠페인이 아닙니다.");
+
         campaignMapper.updateFromDto(dto, existing);
 
         return campaignRepository.save(existing);
@@ -85,11 +90,23 @@ public class CampaignService {
 
         campaign.setReviewUrl(reviewUrl);
         campaign.complete(); // DONE
-
         kafkaTemplate.send(
                 "review-submitted",
                 new ReviewSubmittedEvent(campaign.getId(), userId, reviewUrl)
-        );
+        ).whenComplete((result, ex) -> {
+            if (ex != null) {
+                log.error("Kafka 전송 실패", ex);
+            } else {
+                log.info(
+                        "Kafka 전송 성공 topic={}, campaignId={}, userId={}, reviewUrl={}",
+                        result.getRecordMetadata().topic(),
+                        campaign.getId(),
+                        userId,
+                        reviewUrl
+                );
+            }
+        });
+
     }
 
 
