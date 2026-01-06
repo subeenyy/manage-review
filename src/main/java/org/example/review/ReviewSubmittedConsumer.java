@@ -11,7 +11,7 @@ public class ReviewSubmittedConsumer {
     @KafkaListener(topics = "review-submitted")
     public void handle(ReviewSubmittedEvent event) {
         log.info(
-                "Kafka 수신됨 campaignId={}, userId={}, reviewUrl={}",
+                "** Kafka 수신됨 campaignId={}, userId={}, reviewUrl={}",
                 event.getCampaignId(),
                 event.getUserId(),
                 event.getReviewUrl()

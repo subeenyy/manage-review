@@ -95,10 +95,10 @@ public class CampaignService {
                 new ReviewSubmittedEvent(campaign.getId(), userId, reviewUrl)
         ).whenComplete((result, ex) -> {
             if (ex != null) {
-                log.error("Kafka 전송 실패", ex);
+                log.error("** Kafka 전송 실패", ex);
             } else {
                 log.info(
-                        "Kafka 전송 성공 topic={}, campaignId={}, userId={}, reviewUrl={}",
+                        "** Kafka 전송 성공 topic={}, campaignId={}, userId={}, reviewUrl={}",
                         result.getRecordMetadata().topic(),
                         campaign.getId(),
                         userId,
