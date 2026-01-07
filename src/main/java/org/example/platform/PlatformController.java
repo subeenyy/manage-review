@@ -30,9 +30,9 @@ public class PlatformController {
     @PutMapping("/{id}")
     public Platform update(
             @PathVariable Long id,
-            @RequestBody Platform platform
+            @RequestBody PlatformUpdateRequestDto dto
     ){
-        return platformService.update(id, platform);
+        return platformService.update(id, dto);
 
     }
 

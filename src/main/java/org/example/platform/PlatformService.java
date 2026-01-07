@@ -30,19 +30,13 @@ public class PlatformService {
     }
 
 
-    public Platform update(Long id, Platform updated){
-        Platform platform = findById(id);
+    @Transactional
+    public Platform update(Long id, PlatformUpdateRequestDto req) {
+        Platform platform = platformRepository.findById(id)
+                .orElseThrow();
 
-        platform = Platform.builder()
-                .platformId(platform.getPlatformId())
-                .code(updated.getCode())
-                .name(updated.getName())
-                .rewardEnabled(updated.isRewardEnabled())
-                .rewardPolicyId(updated.getRewardPolicyId())
-                .active(updated.isActive())
-                .build();
-
-        return platformRepository.save(platform);
+        platform.update(req);
+        return platform;
     }
 
     public void deactivate(Long id){
@@ -58,4 +52,7 @@ public class PlatformService {
                         .build()
         );
     }
+
+
+
 }

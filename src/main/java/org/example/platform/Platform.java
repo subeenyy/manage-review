@@ -19,7 +19,7 @@ public class Platform {
     private String code; // review_note, dinner_queen, our_platform
 
     @Column(nullable = false)
-    private String name; // 리뷰노트, 디너의여왕, 우리플랫폼
+    private String name; // 리뷰노트, 디너의여왕, 자사플랫폼
 
     @Column(nullable = false)
     private boolean rewardEnabled;
@@ -28,4 +28,13 @@ public class Platform {
     private boolean active;
 
     private Long rewardPolicyId;
+
+    // Platform 엔티티
+    public void update(PlatformUpdateRequestDto req) {
+        if (req.getName() != null) this.name = req.getName();
+        if (req.getRewardEnabled() != null) this.rewardEnabled = req.getRewardEnabled();
+        if (req.getRewardPolicyId() != null) this.rewardPolicyId = req.getRewardPolicyId();
+        if (req.getActive() != null) this.active = req.getActive();
+    }
+
 }
