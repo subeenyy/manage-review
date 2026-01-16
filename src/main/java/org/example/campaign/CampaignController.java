@@ -106,7 +106,7 @@ public class CampaignController {
     }
 
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/status")
     public List<CampaignResponseDto> getCampaignsByStatus(
             @RequestHeader("Authorization") String token,
             @RequestParam Status status
