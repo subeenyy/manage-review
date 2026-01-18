@@ -59,7 +59,12 @@ public class CampaignService {
                 .orElseThrow();
 
         switch (status) {
-            case RESERVE -> s.reserve(visitDate);
+            case RESERVE -> {
+                if (visitDate == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "방문 예정일은 필수입니다.");
+                }
+                s.reserve(visitDate);
+            }
             case VISIT -> s.visit();
             case COMPLETE -> s.complete();
             case CANCEL -> s.cancel();

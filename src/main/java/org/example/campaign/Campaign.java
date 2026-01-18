@@ -49,6 +49,8 @@ public class Campaign extends BaseEntity {
     private LocalDate experienceStartDate;
     private LocalDate experienceEndDate;
     private LocalDate deadline;
+
+    @Column(name = "visit_date")
     private LocalDate visitDate; // 방문일 (RESERVED 상태에서 설정)
 
     @Column(name = "available_days", length = 50)
