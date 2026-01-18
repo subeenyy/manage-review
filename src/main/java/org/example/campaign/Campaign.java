@@ -2,6 +2,7 @@ package org.example.campaign;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.common.entity.BaseEntity;
 import org.example.platform.Platform;
 import org.example.user.User;
 import org.hibernate.annotations.DynamicUpdate;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Campaign {
+public class Campaign extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +29,7 @@ public class Campaign {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @ManyToOne( fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "platform_id", nullable = false)
     private Platform platform;
 
@@ -52,7 +53,6 @@ public class Campaign {
     @Column(name = "available_days", length = 50)
     private String availableDays;
 
-
     private String availableTime;
 
     @Enumerated(EnumType.STRING)
@@ -61,17 +61,34 @@ public class Campaign {
     private String reviewUrl;
 
     // 상태 변경 메서드
-    public void reserve() { if (status != Status.PENDING) throw new IllegalStateException("PENDING 상태에서만 예약 가능"); status = Status.RESERVED; }
-    public void visit() { if (status != Status.RESERVED) throw new IllegalStateException("RESERVED 상태에서만 방문 처리 가능"); status = Status.VISITED; }
-    public void complete() { if (status != Status.VISITED) throw new IllegalStateException("VISITED 상태에서만 완료 처리 가능"); status = Status.DONE; }
-    public void cancel() { status = Status.CANCELED; }
+    public void reserve() {
+        if (status != Status.PENDING)
+            throw new IllegalStateException("PENDING 상태에서만 예약 가능");
+        status = Status.RESERVED;
+    }
+
+    public void visit() {
+        if (status != Status.RESERVED)
+            throw new IllegalStateException("RESERVED 상태에서만 방문 처리 가능");
+        status = Status.VISITED;
+    }
+
+    public void complete() {
+        if (status != Status.VISITED)
+            throw new IllegalStateException("VISITED 상태에서만 완료 처리 가능");
+        status = Status.DONE;
+    }
+
+    public void cancel() {
+        status = Status.CANCELED;
+    }
 
     public void completeReview(String reviewUrl) {
-        if (status != Status.VISITED) throw new IllegalStateException("VISITED 상태에서만 완료 처리 가능");
+        if (status != Status.VISITED)
+            throw new IllegalStateException("VISITED 상태에서만 완료 처리 가능");
         this.reviewUrl = reviewUrl;
         this.status = Status.DONE;
     }
-
 
     @Builder
     private Campaign(
@@ -92,8 +109,7 @@ public class Campaign {
             String availableDays,
             String availableTime,
             Status status,
-            String reviewUrl
-    ) {
+            String reviewUrl) {
         this.user = user;
         this.platform = platform;
         this.rewardEnabled = rewardEnabled;
@@ -114,11 +130,14 @@ public class Campaign {
         this.reviewUrl = reviewUrl;
     }
 
-
     // Entity → DTO 변환
-    public Set<DayOfWeek> getAvailableDaysAsSet(com.fasterxml.jackson.databind.ObjectMapper objectMapper) throws com.fasterxml.jackson.core.JsonProcessingException {
-        if (this.availableDays == null) return Set.of();
-        return objectMapper.readValue(this.availableDays, new com.fasterxml.jackson.core.type.TypeReference<Set<DayOfWeek>>() {});
+    public Set<DayOfWeek> getAvailableDaysAsSet(com.fasterxml.jackson.databind.ObjectMapper objectMapper)
+            throws com.fasterxml.jackson.core.JsonProcessingException {
+        if (this.availableDays == null)
+            return Set.of();
+        return objectMapper.readValue(this.availableDays,
+                new com.fasterxml.jackson.core.type.TypeReference<Set<DayOfWeek>>() {
+                });
     }
 
     /* 팩토리 메서드 */
@@ -127,8 +146,7 @@ public class Campaign {
             Platform platform,
             boolean rewardEnabled,
             Long rewardPolicyId,
-            CampaignCreateRequestDto req
-    ) {
+            CampaignCreateRequestDto req) {
         String csvDays = String.join(",", req.getAvailableDays());
 
         return Campaign.builder()
@@ -152,21 +170,21 @@ public class Campaign {
                 .build();
     }
 
-
     public void changeStatus(Status status) {
         this.status = status;
     }
 
     private String toCsv(Set<DayOfWeek> days) {
-        if (days == null || days.isEmpty()) return "";
+        if (days == null || days.isEmpty())
+            return "";
         return days.stream()
                 .map(DayOfWeek::name)
                 .collect(Collectors.joining(","));
     }
 
     public List<String> getAvailableDaysList() {
-        if (availableDays == null || availableDays.isEmpty()) return List.of();
+        if (availableDays == null || availableDays.isEmpty())
+            return List.of();
         return List.of(availableDays.split(","));
     }
 }
-

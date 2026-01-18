@@ -2,6 +2,7 @@ package org.example.platform;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.common.entity.BaseEntity;
 
 @Entity
 @Table(name = "platform")
@@ -9,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Platform {
+public class Platform extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +32,14 @@ public class Platform {
 
     // Platform 엔티티
     public void update(PlatformUpdateRequestDto req) {
-        if (req.getName() != null) this.name = req.getName();
-        if (req.getRewardEnabled() != null) this.rewardEnabled = req.getRewardEnabled();
-        if (req.getRewardPolicyId() != null) this.rewardPolicyId = req.getRewardPolicyId();
-        if (req.getActive() != null) this.active = req.getActive();
+        if (req.getName() != null)
+            this.name = req.getName();
+        if (req.getRewardEnabled() != null)
+            this.rewardEnabled = req.getRewardEnabled();
+        if (req.getRewardPolicyId() != null)
+            this.rewardPolicyId = req.getRewardPolicyId();
+        if (req.getActive() != null)
+            this.active = req.getActive();
     }
 
 }

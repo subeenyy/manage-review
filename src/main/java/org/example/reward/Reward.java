@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.campaign.Campaign;
+import org.example.common.entity.BaseEntity;
 import org.example.user.User;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "reward")
-public class Reward {
+public class Reward extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +25,9 @@ public class Reward {
     @ManyToOne(fetch = FetchType.LAZY)
     private Campaign campaign;
 
-    private Long amount;  // 지급 금액
+    private Long amount; // 지급 금액
 
     private LocalDateTime issuedAt;
 
-    private Boolean issued = true;  // 지급 여부
+    private Boolean issued = true; // 지급 여부
 }
