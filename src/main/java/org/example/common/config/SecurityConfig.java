@@ -24,67 +24,61 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+        @Value("${jwt.secret}")
+        private String jwtSecret;
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        SecretKey key =
-                Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        return NimbusJwtDecoder.withSecretKey(key).build();
-    }
+        @Bean
+        public JwtDecoder jwtDecoder() {
+                SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+                return NimbusJwtDecoder.withSecretKey(key).build();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    // 🔥 핵심: CORS 설정
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+        // 🔥 핵심: CORS 설정
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
 
-        // 🔥 Flutter Web 대응
-        config.addAllowedOriginPattern("*");
+                // 🔥 Flutter Web 대응
+                config.addAllowedOriginPattern("*");
 
-        config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"
-        ));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization"));
+                config.setAllowedMethods(List.of(
+                                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
+                config.setExposedHeaders(List.of("Authorization"));
 
-        // ❗ 이거 true면 Flutter Web에서 막힘
-        config.setAllowCredentials(false);
+                // ❗ 이거 true면 Flutter Web에서 막힘
+                config.setAllowCredentials(false);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http)
+                        throws Exception {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html",
+                                                                "/v3/api-docs/**",
+                                                                "/v3/api-docs.yaml",
+                                                                "/auth/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {
+                                }))
+                                .httpBasic(AbstractHttpConfigurer::disable);
 
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs.yaml",
-                                "/auth/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> {})
-                )
-                .httpBasic(AbstractHttpConfigurer::disable);
-
-        return http.build();
-    }
+                return http.build();
+        }
 }

@@ -1,6 +1,8 @@
 package org.example.campaign;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -8,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CampaignResponseDto {
 
     private Long id;
@@ -24,38 +28,6 @@ public class CampaignResponseDto {
     private List<String> availableDays;
     private String availableTime;
     private String status;
-
-    public CampaignResponseDto(
-            Long id,
-            String storeName,
-            String storePhone,
-            String address,
-            String platformName,
-            Long supportAmount,
-            Long extraCost,
-            boolean receiptReview,
-            LocalDate experienceStartDate,
-            LocalDate experienceEndDate,
-            LocalDate deadline,
-            List<String> availableDays,
-            String availableTime,
-            String status
-    ) {
-        this.id = id;
-        this.storeName = storeName;
-        this.storePhone = storePhone;
-        this.address = address;
-        this.platformName = platformName;
-        this.supportAmount = supportAmount;
-        this.extraCost = extraCost;
-        this.receiptReview = receiptReview;
-        this.experienceStartDate = experienceStartDate;
-        this.experienceEndDate = experienceEndDate;
-        this.deadline = deadline;
-        this.availableDays = availableDays;
-        this.availableTime = availableTime;
-        this.status = status;
-    }
 
     public static CampaignResponseDto fromEntity(Campaign s) {
         List<String> availableDaysList = s.getAvailableDays() == null
@@ -76,7 +48,6 @@ public class CampaignResponseDto {
                 s.getDeadline(),
                 availableDaysList,
                 s.getAvailableTime(),
-                s.getStatus().name()
-        );
+                s.getStatus().name());
     }
 }
