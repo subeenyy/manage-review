@@ -2,6 +2,7 @@ package org.example.campaign;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.category.Category;
 import org.example.common.entity.BaseEntity;
 import org.example.platform.Platform;
 import org.example.user.User;
@@ -11,7 +12,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "campaign")
@@ -32,6 +32,10 @@ public class Campaign extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "platform_id", nullable = false)
     private Platform platform;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Column(nullable = false)
     private boolean rewardEnabled;
@@ -100,6 +104,7 @@ public class Campaign extends BaseEntity {
     private Campaign(
             User user,
             Platform platform,
+            Category category,
             boolean rewardEnabled,
             Long rewardPolicyId,
 
@@ -119,6 +124,7 @@ public class Campaign extends BaseEntity {
             String reviewUrl) {
         this.user = user;
         this.platform = platform;
+        this.category = category;
         this.rewardEnabled = rewardEnabled;
         this.rewardPolicyId = rewardPolicyId;
 
@@ -152,6 +158,7 @@ public class Campaign extends BaseEntity {
     public static Campaign create(
             User user,
             Platform platform,
+            Category category,
             boolean rewardEnabled,
             Long rewardPolicyId,
             CampaignCreateRequestDto req) {
@@ -160,6 +167,7 @@ public class Campaign extends BaseEntity {
         return Campaign.builder()
                 .user(user)
                 .platform(platform)
+                .category(category)
                 .rewardEnabled(rewardEnabled)
                 .rewardPolicyId(rewardPolicyId)
                 .storeName(req.getStoreName())
@@ -180,14 +188,6 @@ public class Campaign extends BaseEntity {
 
     public void changeStatus(Status status) {
         this.status = status;
-    }
-
-    private String toCsv(Set<DayOfWeek> days) {
-        if (days == null || days.isEmpty())
-            return "";
-        return days.stream()
-                .map(DayOfWeek::name)
-                .collect(Collectors.joining(","));
     }
 
     public List<String> getAvailableDaysList() {

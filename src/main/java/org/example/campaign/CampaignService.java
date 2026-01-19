@@ -2,6 +2,8 @@ package org.example.campaign;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.category.Category;
+import org.example.category.CategoryRepository;
 import org.example.platform.Platform;
 import org.example.platform.PlatformRepository;
 import org.example.review.ReviewSubmittedEvent;
@@ -27,10 +29,12 @@ public class CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final PlatformRepository platformRepository;
+    private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CampaignMapper campaignMapper;
     private final KafkaTemplate<String, ReviewSubmittedEvent> kafkaTemplate;
 
+    @org.springframework.cache.annotation.CacheEvict(value = "campaigns", allEntries = true)
     public Campaign createCampaign(Long userId, CampaignCreateRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
@@ -38,12 +42,16 @@ public class CampaignService {
         Platform platform = platformRepository.findById(request.getPlatformId())
                 .orElseThrow(() -> new IllegalArgumentException("플랫폼 없음"));
 
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
+
         boolean rewardEnabled = platform.isRewardEnabled();
         Long rewardPolicyId = platform.getRewardPolicyId();
 
         Campaign campaign = Campaign.create(
                 user,
                 platform,
+                category,
                 rewardEnabled,
                 rewardPolicyId,
                 request);
@@ -54,6 +62,7 @@ public class CampaignService {
         return campaignRepository.findByUserId(userId);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "campaigns", allEntries = true)
     public void changeStatus(Long campaignId, Long userId, CampaignAction status, java.time.LocalDate visitDate) {
         Campaign s = campaignRepository.findByIdAndUser_Id(campaignId, userId)
                 .orElseThrow();
@@ -81,6 +90,7 @@ public class CampaignService {
         return campaignRepository.save(campaign);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "campaigns", allEntries = true)
     public Campaign updateCampaign(Long campaignId, Long userId, CampaignResponseDto dto) {
         Campaign existing = campaignRepository.findById(campaignId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -88,11 +98,24 @@ public class CampaignService {
         if (!existing.getUser().getId().equals(userId))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 캠페인이 아닙니다.");
 
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
+            existing.setCategory(category);
+        }
+
+        if (dto.getPlatformId() != null) {
+            Platform platform = platformRepository.findById(dto.getPlatformId())
+                    .orElseThrow(() -> new IllegalArgumentException("플랫폼 없음"));
+            existing.setPlatform(platform);
+        }
+
         campaignMapper.updateFromDto(dto, existing);
 
         return campaignRepository.save(existing);
     }
 
+    @org.springframework.cache.annotation.CacheEvict(value = "campaigns", allEntries = true)
     public void submitReview(Long campaignId, Long userId, String reviewUrl) {
 
         Campaign campaign = campaignRepository

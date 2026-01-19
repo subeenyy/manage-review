@@ -17,7 +17,10 @@ public class CampaignResponseDto {
     private String storeName;
     private String storePhone;
     private String address;
+    private Long platformId;
     private String platformName; // 추가
+    private Long categoryId;
+    private String categoryName;
     private Long supportAmount;
     private Long extraCost;
     private boolean receiptReview;
@@ -39,7 +42,10 @@ public class CampaignResponseDto {
                 s.getStoreName(),
                 s.getStorePhone(),
                 s.getAddress(),
+                s.getPlatform().getPlatformId(),
                 s.getPlatform().getName(), // platformName
+                s.getCategory() != null ? s.getCategory().getId() : null,
+                s.getCategory() != null ? s.getCategory().getName() : null,
                 s.getSupportAmount(),
                 s.getExtraCost(),
                 s.getReceiptReview(),

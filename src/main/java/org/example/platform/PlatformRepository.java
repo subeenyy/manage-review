@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface PlatformRepository extends JpaRepository<Platform, Long> {
 
     Optional<Platform> findByCode(String code);
+
+    java.util.List<Platform> findAllByActiveTrue();
 }

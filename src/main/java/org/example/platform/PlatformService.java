@@ -13,22 +13,21 @@ public class PlatformService {
 
     private final PlatformRepository platformRepository;
 
-    public Platform create(Platform platform){
+    public Platform create(Platform platform) {
         return platformRepository.save(platform);
     }
 
     @Transactional(readOnly = true)
-    public List<Platform> findAll(){
-        return platformRepository.findAll();
+    public List<Platform> findAll() {
+        return platformRepository.findAllByActiveTrue();
     }
 
     @Transactional(readOnly = true)
-    public Platform findById(Long id){
+    public Platform findById(Long id) {
         return platformRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("플랫폼 정보가 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("플랫폼 정보가 없습니다."));
 
     }
-
 
     @Transactional
     public Platform update(Long id, PlatformUpdateRequestDto req) {
@@ -39,7 +38,7 @@ public class PlatformService {
         return platform;
     }
 
-    public void deactivate(Long id){
+    public void deactivate(Long id) {
         Platform platform = findById(id);
         platformRepository.save(
                 Platform.builder()
@@ -49,10 +48,7 @@ public class PlatformService {
                         .rewardEnabled(platform.isRewardEnabled())
                         .rewardPolicyId(platform.getRewardPolicyId())
                         .active(false)
-                        .build()
-        );
+                        .build());
     }
-
-
 
 }

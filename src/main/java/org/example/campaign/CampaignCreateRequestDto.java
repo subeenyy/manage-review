@@ -17,6 +17,10 @@ public class CampaignCreateRequestDto {
     @NotNull
     private Long platformId;
 
+    /** 카테고리 식별자 */
+    @NotNull
+    private Long categoryId;
+
     /** 가게 정보 */
     @NotBlank
     private String storeName;
