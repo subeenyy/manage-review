@@ -10,6 +10,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -65,6 +66,8 @@ public class Campaign extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    private LocalDateTime completedAt;
+
     private String reviewUrl;
 
     // 상태 변경 메서드
@@ -87,6 +90,9 @@ public class Campaign extends BaseEntity {
         if (status != Status.VISITED)
             throw new IllegalStateException("VISITED 상태에서만 완료 처리 가능");
         status = Status.DONE;
+        if (this.completedAt == null) {
+            this.completedAt = LocalDateTime.now();
+        }
     }
 
     public void cancel() {
@@ -98,6 +104,9 @@ public class Campaign extends BaseEntity {
             throw new IllegalStateException("VISITED 상태에서만 완료 처리 가능");
         this.reviewUrl = reviewUrl;
         this.status = Status.DONE;
+        if (this.completedAt == null) {
+            this.completedAt = LocalDateTime.now();
+        }
     }
 
     @Builder
@@ -122,6 +131,7 @@ public class Campaign extends BaseEntity {
             String availableDays,
             String availableTime,
             Status status,
+            LocalDateTime completedAt,
             String reviewUrl) {
         this.id = id;
         this.user = user;
@@ -143,6 +153,7 @@ public class Campaign extends BaseEntity {
         this.availableDays = availableDays;
         this.availableTime = availableTime;
         this.status = status;
+        this.completedAt = completedAt;
         this.reviewUrl = reviewUrl;
     }
 
@@ -190,6 +201,9 @@ public class Campaign extends BaseEntity {
 
     public void changeStatus(Status status) {
         this.status = status;
+        if (status == Status.DONE && this.completedAt == null) {
+            this.completedAt = LocalDateTime.now();
+        }
     }
 
     public List<String> getAvailableDaysList() {

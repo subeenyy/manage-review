@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,7 @@ public class CampaignResponseDto implements Serializable {
     private List<String> availableDays;
     private String availableTime;
     private String status;
+    private LocalDateTime completedAt;
 
     public static CampaignResponseDto fromEntity(Campaign s) {
         List<String> availableDaysList = s.getAvailableDays() == null
@@ -57,6 +59,7 @@ public class CampaignResponseDto implements Serializable {
                 s.getVisitDate(),
                 availableDaysList,
                 s.getAvailableTime(),
-                s.getStatus().name());
+                s.getStatus().name(),
+                s.getCompletedAt());
     }
 }

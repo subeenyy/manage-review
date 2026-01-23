@@ -13,6 +13,7 @@ public interface CampaignMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "platform", ignore = true)
+    @Mapping(target = "completedAt", ignore = true)
     void updateFromDto(CampaignResponseDto dto, @MappingTarget Campaign entity);
 
     default String map(List<String> value) {
