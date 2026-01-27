@@ -20,9 +20,11 @@ public class Reward extends BaseEntity {
     private Long rewardId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
     private Long amount; // 지급 금액
