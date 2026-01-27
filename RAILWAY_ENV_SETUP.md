@@ -21,12 +21,17 @@ CORS_ALLOWED_ORIGINS=https://review-admin-phi.vercel.app,https://*.vercel.app,ht
 JWT_SECRET=very-very-secret-key-that-is-at-least-32-bytes
 ```
 
-## Redis (선택사항)
+## Redis 설정 (필수)
+Railway Redis를 생성했다면 다음 환경변수를 설정하세요:
+
 ```bash
-# Railway Redis 추가 시 자동 설정됨
-# 또는 외부 Redis 사용 시:
-# REDIS_HOST=your-redis-host
-# REDIS_PORT=6379
+# 전체 URL로 설정 (가장 쉬운 방법)
+REDIS_URL=redis://default:password@redis.railway.internal:6379
+
+# 또는 개별 설정 (REDIS_URL이 설정되면 무시됨)
+REDIS_HOST=redis.railway.internal
+REDIS_PORT=6379
+REDIS_PASSWORD=your-redis-password
 ```
 
 ## 이메일 (선택사항)
