@@ -7,6 +7,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true")
 public class RewardService {
 
     private final RewardRepository rewardRepository;
@@ -14,8 +15,8 @@ public class RewardService {
     private final UserRepository userRepository;
 
     public RewardService(RewardRepository rewardRepository,
-                         CampaignRepository campaignRepository,
-                         UserRepository userRepository) {
+            CampaignRepository campaignRepository,
+            UserRepository userRepository) {
         this.rewardRepository = rewardRepository;
         this.campaignRepository = campaignRepository;
         this.userRepository = userRepository;
@@ -24,7 +25,8 @@ public class RewardService {
     @KafkaListener(topics = "review-submitted-topic")
     public void handleReviewEvent(ReviewSubmittedEvent event) {
         // 이미 지급 여부 확인
-        if(rewardRepository.existsByCampaign_IdAndUser_Id(event.getCampaignId(), event.getUserId())) return;
+        if (rewardRepository.existsByCampaign_IdAndUser_Id(event.getCampaignId(), event.getUserId()))
+            return;
 
         Reward reward = new Reward();
         reward.setCampaign(campaignRepository.findById(event.getCampaignId()).get());
