@@ -1,6 +1,5 @@
 package org.example.campaign;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.category.Category;
 import org.example.category.CategoryRepository;
@@ -12,22 +11,19 @@ import org.example.user.UserRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class CampaignService {
 
@@ -36,7 +32,21 @@ public class CampaignService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CampaignMapper campaignMapper;
-    private final KafkaTemplate<String, ReviewSubmittedEvent> kafkaTemplate;
+    private final Optional<KafkaTemplate<String, ReviewSubmittedEvent>> kafkaTemplate;
+
+    public CampaignService(CampaignRepository campaignRepository,
+            PlatformRepository platformRepository,
+            CategoryRepository categoryRepository,
+            UserRepository userRepository,
+            CampaignMapper campaignMapper,
+            @org.springframework.beans.factory.annotation.Autowired(required = false) KafkaTemplate<String, ReviewSubmittedEvent> kafkaTemplate) {
+        this.campaignRepository = campaignRepository;
+        this.platformRepository = platformRepository;
+        this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.campaignMapper = campaignMapper;
+        this.kafkaTemplate = Optional.ofNullable(kafkaTemplate);
+    }
 
     @org.springframework.cache.annotation.CacheEvict(value = "campaigns", allEntries = true)
     public Campaign createCampaign(Long userId, CampaignCreateRequestDto request) {
@@ -148,20 +158,23 @@ public class CampaignService {
         log.info(">>> [DB] Saving campaign review. campaignId={}", campaignId);
         campaignRepository.saveAndFlush(campaign);
         log.info(">>> [CACHE] Evicted 'campaigns' cache for submitReview.");
-        kafkaTemplate.send(
-                "review-submitted",
-                new ReviewSubmittedEvent(campaign.getId(), userId, reviewUrl)).whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("** Kafka 전송 실패", ex);
-                    } else {
-                        log.info(
-                                "** Kafka 전송 성공 topic={}, campaignId={}, userId={}, reviewUrl={}",
-                                result.getRecordMetadata().topic(),
-                                campaign.getId(),
-                                userId,
-                                reviewUrl);
-                    }
-                });
+
+        kafkaTemplate.ifPresent(template -> {
+            template.send(
+                    "review-submitted",
+                    new ReviewSubmittedEvent(campaign.getId(), userId, reviewUrl)).whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("** Kafka 전송 실패", ex);
+                        } else {
+                            log.info(
+                                    "** Kafka 전송 성공 topic={}, campaignId={}, userId={}, reviewUrl={}",
+                                    result.getRecordMetadata().topic(),
+                                    campaign.getId(),
+                                    userId,
+                                    reviewUrl);
+                        }
+                    });
+        });
 
     }
 
