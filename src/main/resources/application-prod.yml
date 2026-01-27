@@ -13,6 +13,14 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
+  # JPA 설정: 스키마 자동 업데이트 (배포 초기 단계용)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
 # 로깅 레벨 조정
 logging:
   level:
