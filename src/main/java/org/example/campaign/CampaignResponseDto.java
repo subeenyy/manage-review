@@ -35,6 +35,7 @@ public class CampaignResponseDto implements Serializable {
     private String availableTime;
     private String status;
     private LocalDateTime completedAt;
+    private String provisionDetails;
 
     public static CampaignResponseDto fromEntity(Campaign s) {
         List<String> availableDaysList = s.getAvailableDays() == null
@@ -60,6 +61,7 @@ public class CampaignResponseDto implements Serializable {
                 availableDaysList,
                 s.getAvailableTime(),
                 s.getStatus().name(),
-                s.getCompletedAt());
+                s.getCompletedAt(),
+                s.getProvisionDetails());
     }
 }

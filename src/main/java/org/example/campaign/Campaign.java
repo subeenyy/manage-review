@@ -59,6 +59,9 @@ public class Campaign extends BaseEntity {
     private LocalDate experienceEndDate;
     private LocalDate deadline;
 
+    @Column(length = 1000)
+    private String provisionDetails;
+
     @Column(name = "visit_date")
     private LocalDate visitDate; // 방문일 (RESERVED 상태에서 설정)
 
@@ -136,7 +139,8 @@ public class Campaign extends BaseEntity {
             String availableTime,
             Status status,
             LocalDateTime completedAt,
-            String reviewUrl) {
+            String reviewUrl,
+            String provisionDetails) {
         this.id = id;
         this.user = user;
         this.platform = platform;
@@ -159,6 +163,7 @@ public class Campaign extends BaseEntity {
         this.status = status;
         this.completedAt = completedAt;
         this.reviewUrl = reviewUrl;
+        this.provisionDetails = provisionDetails;
     }
 
     // Entity → DTO 변환
@@ -200,6 +205,7 @@ public class Campaign extends BaseEntity {
                 .availableTime(req.getAvailableTime())
                 .status(Status.PENDING)
                 .reviewUrl(null)
+                .provisionDetails(req.getProvisionDetails())
                 .build();
     }
 

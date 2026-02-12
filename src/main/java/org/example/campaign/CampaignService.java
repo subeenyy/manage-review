@@ -138,6 +138,10 @@ public class CampaignService {
             existing.setVisitDate(dto.getVisitDate());
         }
 
+        if (dto.getProvisionDetails() != null) {
+            existing.setProvisionDetails(dto.getProvisionDetails());
+        }
+
         campaignMapper.updateFromDto(dto, existing);
 
         log.info(">>> [DB] Updating campaign details. campaignId={}", campaignId);

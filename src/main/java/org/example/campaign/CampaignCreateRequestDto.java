@@ -25,10 +25,10 @@ public class CampaignCreateRequestDto {
     @NotBlank
     private String storeName;
 
-    @NotBlank
+    // @NotBlank // optional
     private String storePhone;
 
-    @NotBlank
+    // @NotBlank // optional
     private String address;
 
     /** 지원금 / 추가금 */
@@ -59,4 +59,6 @@ public class CampaignCreateRequestDto {
     /** 방문 가능 시간대 */
     @NotBlank
     private String availableTime;
+
+    private String provisionDetails;
 }
